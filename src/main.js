@@ -24,19 +24,18 @@ scene.add(directionLight)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 
-// const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-// const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-// const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-// scene.add(boxMesh);
 const gltfLoader = new GLTFLoader();
 gltfLoader.load('container.glb', (gltf) => {
     scene.add(gltf.scene);
 })
 
-setInterval(() => {
+animation();
+// requestAnimationFrame比setInterval更有彈性 滑動更順暢
+function animation() {
+    requestAnimationFrame(animation);
     renderer.render(scene, camera);
     controls.update()
-}, 1000 / 24)
+}
 
 
 
