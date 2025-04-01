@@ -4,7 +4,9 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import gsap from 'gsap'
+import gsap from 'gsap';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
+
 
 let owl;
 
@@ -40,7 +42,14 @@ const controls = new OrbitControls(camera, renderer.domElement)
 
 const gltfLoader = new GLTFLoader();
 
+new RGBELoader().load('room.hdr', (texture) => {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = texture;
+    scene.environment = texture;
+    // scene.backgroundBlurriness = 0.1;
+    renderer.outputEncoding = THREE.sRGBEncoding;
 
+})
 const canRaycastMeshes = [];
 let mixer01;
 // 按鍵觸發
@@ -97,33 +106,33 @@ gltfLoader.load('cubes.glb', (gltf) => {
 })
 
 // // 懸浮粒子
-// const textureLoader = new THREE.TextureLoader();
-// textureLoader.load('particle.png', (texture) => {
-//     const vertices = [];
+const textureLoader = new THREE.TextureLoader();
+textureLoader.load('particle.png', (texture) => {
+    const vertices = [];
 
-//     for (let i = 0; i < 1000; i++) {
-//         const x = THREE.MathUtils.randFloatSpread(100);
-//         const y = THREE.MathUtils.randFloatSpread(100);
-//         const z = THREE.MathUtils.randFloatSpread(100);
-//         vertices.push(x, y, z);
-//     }
+    for (let i = 0; i < 1000; i++) {
+        const x = THREE.MathUtils.randFloatSpread(100);
+        const y = THREE.MathUtils.randFloatSpread(100);
+        const z = THREE.MathUtils.randFloatSpread(100);
+        vertices.push(x, y, z);
+    }
 
-//     const geometry = new THREE.BufferGeometry();
-//     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-//     const material = new THREE.PointsMaterial({ color: 0xffffff, map: texture, transparent: true, size: 0.5 });
-//     const points = new THREE.Points(geometry, material);
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    const material = new THREE.PointsMaterial({ color: 0xffffff, map: texture, transparent: true, size: 0.5 });
+    const points = new THREE.Points(geometry, material);
 
-//     gsap.to(points.position, {
-//         x: -8,
-//         y: -3,
-//         duration: 30,
-//         repeat: -1,
-//         yoyo: true,
-//         ease: 'none',
-//     })
-//     scene.add(points);
+    gsap.to(points.position, {
+        x: -8,
+        y: -3,
+        duration: 30,
+        repeat: -1,
+        yoyo: true,
+        ease: 'none',
+    })
+    scene.add(points);
 
-// })
+})
 
 let pointerScreen = new THREE.Vector2();
 let pointerThreejs = new THREE.Vector2();
@@ -163,7 +172,6 @@ function checkRaycast(e) {
     console.log('intersects', intersects);
 
     if (intersects[0]?.object.name.indexOf('Cube') >= 0) {
-        console.log('cube', intersects[0].object.name);
         const cube = intersects[0].object;
 
         const newMaterial = cube.material.clone();
